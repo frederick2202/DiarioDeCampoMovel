@@ -1,0 +1,66 @@
+name: Android Release Build (APK & AAB)
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-release:
+    name: Gerar APK e AAB Assinados
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 1. Checkout do repositório
+        uses: actions/checkout@v4
+
+      - name: 2. Configurar JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: 3. Configurar Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: 4. Configurar Gradle 8.5 (dispensa gradlew local)
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.5'
+
+      - name: 5. Gerar Keystore de Exercício (temporária, fora do Git)
+        run: |
+          keytool -genkeypair -v \
+            -keystore ${{ runner.temp }}/diario-release.jks \
+            -keyalg RSA -keysize 2048 -validity 10000 \
+            -alias diario_upload_key \
+            -storepass Uniube2026! \
+            -keypass Uniube2026! \
+            -dname "CN=Frederico Arantes, OU=Sistemas de Informacao, O=Uniube, L=Uberlandia, ST=MG, C=BR"
+
+          cat <<EOF > keystore.properties
+          storeFile=${{ runner.temp }}/diario-release.jks
+          storePassword=Uniube2026!
+          keyAlias=diario_upload_key
+          keyPassword=Uniube2026!
+          EOF
+
+      - name: 6. Compilar APK Release Assinado
+        run: gradle assembleRelease
+
+      - name: 7. Compilar Android App Bundle (AAB) Release Assinado
+        run: gradle bundleRelease
+
+      - name: 8. Publicar APK Release para Download
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-apk
+          path: app/build/outputs/apk/release/*.apk
+          if-no-files-found: error
+
+      - name: 9. Publicar AAB Release para Download
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-aab
+          path: app/build/outputs/bundle/release/*.aab
+          if-no-files-found: error

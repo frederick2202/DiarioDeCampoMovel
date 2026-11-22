@@ -1,0 +1,41 @@
+# ==========================================
+# 1. Segredos, Assinaturas e Chaves de API
+# ==========================================
+*.jks
+*.keystore
+keystore.properties
+local.properties
+
+# ==========================================
+# 2. Artefatos de Build e Gradle
+# ==========================================
+.gradle/
+build/
+app/build/
+captures/
+*.apk
+*.ap_
+*.aab
+*.dex
+*.class
+
+# ==========================================
+# 3. IDEs e Editores (Android Studio / VS Code)
+# ==========================================
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.navigation/
+.externalNativeBuild/
+.cxx/
+
+# ==========================================
+# 4. Logs e Arquivos de Sistema Operacional
+# ==========================================
+*.log
+hs_err_pid*
+replay_pid*
+.DS_Store
+Thumbs.db
